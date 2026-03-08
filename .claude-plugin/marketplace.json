@@ -1,0 +1,25 @@
+{
+  "name": "albot",
+  "owner": {
+    "name": "ajoslin103",
+    "url": "https://github.com/ajoslin103"
+  },
+  "metadata": {
+    "description": "A plugin collection that helps Al work the way he likes to work",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "albot",
+      "description": "A collection that helps Al work the way he likes to work",
+      "version": "1.0.0",
+      "author": {
+        "name": "ajoslin103"
+      },
+      "source": ".",
+      "category": "utilities",
+      "tags": ["personal", "workflow"],
+      "keywords": ["personal", "workflow", "commands"]
+    }
+  ]
+}
