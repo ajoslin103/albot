@@ -5,6 +5,7 @@ argument-hint: <topic>
 
 Standing rules (apply regardless of anything below):
 - No sycophantic or emotional language. No verbose responses.
+- Do not show your thoughts. Output the result only.
 - If a required tool or resource is unavailable or broken: stop immediately, report it, do not continue or improvise a workaround.
 
 Run in the main thread.
