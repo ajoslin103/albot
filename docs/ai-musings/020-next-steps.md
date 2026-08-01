@@ -2,15 +2,19 @@
 topic: albot
 phase: document
 date: 2026-08-01
-abstract: Gaps to close before albot (formerly albot-next) is installable/usable, compared against albot-prev
+abstract: Gaps to close before albot is installable/usable, compared against albot-prev. Updated after .claude-plugin/ and .gitignore fixes.
+
+---
+
+## Resolved
+- `.claude-plugin/plugin.json` — moved to correct location per spec.
+- `.gitignore` — created.
 ---
 
 ## Packaging gaps
 
-- No `.claude-plugin/plugin.json` — Claude Code plugin convention expects the manifest under `.claude-plugin/`, not repo root. `albot-prev` follows this convention; `albot` currently does not.
-- No `marketplace.json` — needed if `albot` should be installable via `claude plugin add` the way `albot-prev` is.
-- No `LICENSE` file (`albot-prev` has one).
-- No `.gitignore` (`albot-prev` has one, e.g. for `.DS_Store`).
+- No `marketplace.json` — needed if `albot` should be installable via `claude plugin add` (albot-prev had one).
+- No `LICENSE` file (albot-prev used MIT).
 
 ## Functional gaps vs. albot-prev
 
@@ -22,6 +26,9 @@ abstract: Gaps to close before albot (formerly albot-next) is installable/usable
 
 None of the 6 commands or 3 agents in `albot` have been run yet. Each phase should be dry-run once end-to-end on a throwaway topic to confirm subagent delegation and frontmatter-writing behave as specified before relying on it.
 
-## Naming check
+## Naming (resolved)
 
-Command frontmatter/docs reference `/albot:investigate` etc. Confirm this namespace is still correct now that the folder itself is `albot` (no known conflict, but worth confirming against how Claude Code namespaces plugin commands by folder name).
+Confirmed per official Claude Code plugin docs (`code.claude.com/docs/en/plugins`):
+- Namespace comes from `plugin.json`'s `name` field, not the folder name or command filenames.
+- Format is colon-delimited: `/albot:investigate`, `/albot:plan`, etc. — already correct in all command files.
+- Command files stay as plain filenames (`investigate.md`), no namespace prefix needed.
