@@ -19,8 +19,11 @@ abstract: Gaps to close before albot is installable/usable, compared against alb
 ## Functional gaps vs. albot-prev
 
 - No `/me`-equivalent command. `albot-prev`'s `/me` loads standing rules as a standalone command. `albot` duplicates the rules inline in every command file instead of offering a single rule-reinforcement command.
-- No auto-commit behavior in `execute.md`. `albot-prev`'s `/doit` commits before and after execution. `albot`'s execute command does not mention git.
-- No per-command model pinning. `albot-prev` pins `/doit`/`/me` to `haiku`. `albot` specifies no model tier per command.
+
+## Resolved (continued)
+
+- `execute.md` merged into `doit.md`: `albot` now has a single execute-with-auto-commit command (`/albot:doit`), matching `albot-prev`'s `/doit` behavior. `execute-agent.md` renamed to `doit-agent.md`.
+- Model pinning removed from `/albot:doit` since it now does full execute-agent work (not a lightweight shortcut); no per-command model pinning elsewhere either.
 
 ## Untested
 
@@ -30,5 +33,5 @@ None of the 6 commands or 3 agents in `albot` have been run yet. Each phase shou
 
 Confirmed per official Claude Code plugin docs (`code.claude.com/docs/en/plugins`):
 - Namespace comes from `plugin.json`'s `name` field, not the folder name or command filenames.
-- Format is colon-delimited: `/albot:investigate`, `/albot:plan`, etc. — already correct in all command files.
-- Command files stay as plain filenames (`investigate.md`), no namespace prefix needed.
+- Format is colon-delimited: `/albot:look`, `/albot:plan`, etc. — already correct in all command files.
+- Command files stay as plain filenames (`look.md`), no namespace prefix needed.
