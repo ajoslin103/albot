@@ -19,7 +19,28 @@ Copy or symlink this directory into `~/.claude/plugins/albot`.
 
 ## Artifact convention
 
-All phases write to `docs/ai-musings/<topic>-<phase>.md` in the target repo, using this frontmatter:
+All phases write into `docs/ai-musings/<NNN>-<topic>/<PPP>-<phase>.md`:
+
+```
+docs/ai-musings/
+└── 010-albot/                 # NNN = topic ordinal
+    ├── 010-document.md        # PPP = phase ordinal
+    ├── 020-document.md
+    └── 030-document.md
+```
+
+Phase-to-ordinal mapping:
+
+| PPP | Phase |
+|---|---|
+| 010 | investigate |
+| 020 | plan |
+| 030 | verify |
+| 040 | execute |
+| 050 | debug |
+| 060 | document |
+
+Frontmatter:
 
 ```yaml
 ---
