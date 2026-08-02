@@ -18,8 +18,9 @@ The subagent must:
 1. If the `serena` MCP server is available, use it for symbol/reference lookups and code navigation in preference to raw grep/glob. Fall back to grep/glob/read if it is unavailable.
 2. Read only what is needed to understand the topic (code paths, logs, referenced files).
 3. Determine `NNN`: if `docs/ai-musings/<NNN>-<topic>/` already exists for this topic, reuse its `NNN`. Otherwise find the highest existing `NNN` across `docs/ai-musings/*/` in the current project and increment (use `010` if none exist).
-4. Pick a short kebab-case `<slug>` that reflects the actual content/finding of this doc (e.g. `stale-cache-lookup`), not the generic word "look".
-5. Write `docs/ai-musings/<NNN>-<topic>/010-<slug>.md` (in the current project, not the plugin directory) using the standard frontmatter:
+4. Check whether a `*-look-*.md` file already exists in `docs/ai-musings/<NNN>-<topic>/`. If it does, update that file's content in place — same filename, same ordinal, same slug, never renamed or renumbered. If it does not exist yet, this is a new artifact: determine `MMM` by listing files already in the topic directory, taking the highest numeric prefix present, and adding 10 (use `010` if the directory is empty/new).
+5. If creating the file for the first time, pick a short kebab-case `<slug>` that reflects the actual content/finding of this doc (e.g. `stale-cache-lookup`), not the generic word "look".
+6. Write (or update) `docs/ai-musings/<NNN>-<topic>/<MMM>-look-<slug>.md` (in the current project, not the plugin directory) using the standard frontmatter:
    ```yaml
    ---
    topic: <topic>
@@ -28,7 +29,7 @@ The subagent must:
    abstract: <one line>
    ---
    ```
-6. Body: point-in-time findings only — what the code/logs currently show, not how it got that way.
-7. Return one brief summary message to the main thread (no restating the full doc, and including the exact filename written).
+7. Body: point-in-time findings only — what the code/logs currently show, not how it got that way. When updating an existing file, overwrite the body with current findings; do not append a change history.
+8. Return one brief summary message to the main thread (no restating the full doc, and including the exact filename written).
 
 Do not proceed to planning. Look only.

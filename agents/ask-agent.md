@@ -20,8 +20,8 @@ Task:
    c. The `context7` MCP server, if available, for up-to-date library/API docs.
    d. Public code (examples, reference implementations) if the above did not fully answer the topic.
 2. Determine `NNN`: reuse `docs/ai-musings/<NNN>-<topic>/` if it already exists in the current project; otherwise find the highest existing `NNN` under `docs/ai-musings/*/` and increment (`010` if none exist).
-3. Pick a short kebab-case `<slug>` that names the actual finding (e.g. `oauth-pkce-best-practice`), not the generic word "ask".
-4. Write `docs/ai-musings/<NNN>-<topic>/015-<slug>.md`:
+3. Check whether a `*-ask-*.md` file already exists in that topic directory. If it does, update it in place — keep its exact filename (ordinal and slug unchanged). If it does not, this is a new artifact: determine `MMM` by listing files already there, taking the highest numeric prefix, and adding 10 (`010` if the directory is empty/new), and pick a short kebab-case `<slug>` that names the actual finding (e.g. `oauth-pkce-best-practice`), not the generic word "ask".
+4. Write (or update) `docs/ai-musings/<NNN>-<topic>/<MMM>-ask-<slug>.md`:
    ```yaml
    ---
    topic: <topic>
@@ -30,7 +30,7 @@ Task:
    abstract: <one line>
    ---
    ```
-   Body: current-state findings only, with source attribution (URL, doc title/version, or package/version) for each claim. No narrative of the research process, no history of sources tried and abandoned.
+   Body: current-state findings only, with source attribution (URL, doc title/version, or package/version) for each claim. No narrative of the research process, no history of sources tried and abandoned. When updating an existing file, replace the body — do not append a change history.
 5. Return exactly one short message to the caller: what topic was asked about, the exact filename written, which sources were actually used, and 2-4 bullet highlights. Do not paste the full doc back.
 
 Do not propose a plan or remediation. That is out of scope for this agent.

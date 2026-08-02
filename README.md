@@ -1,6 +1,6 @@
 # Albot
 
-Claude Code plugin implementing a fixed workflow: `look → plan → verify → doit → debug → document`.
+Claude Code plugin implementing a fixed workflow: `look → plan → prove → doit → bug → docs`.
 
 ## Install
 
@@ -13,43 +13,38 @@ Copy or symlink this directory into `~/.claude/plugins/albot`.
 | `/albot:look <topic>` | Look | subagent |
 | `/albot:ask <topic>` | Ask | subagent |
 | `/albot:plan <topic>` | Plan | main thread |
-| `/albot:verify <topic>` | Verify | main thread |
+| `/albot:prove <topic>` | Prove | main thread |
 | `/albot:doit <topic>` | Doit | subagent |
-| `/albot:debug <topic\|error>` | Debug | subagent |
-| `/albot:document <topic>` | Document | main thread |
+| `/albot:bug <topic\|error>` | Bug | subagent |
+| `/albot:docs <topic>` | Docs | main thread |
 
 ## Artifact convention
 
-This is a global (user-level) plugin. All phases write into `docs/ai-musings/<NNN>-<topic>/<PPP>-<slug>.md` **in the current project** — the repo at/above the CWD Claude Code was invoked from — never inside this plugin's own installation directory. `<slug>` is a short kebab-case name reflecting the file's actual content (e.g. `stale-cache-lookup`), not the phase name itself:
+This is a global (user-level) plugin. All phases write into `docs/ai-musings/<NNN>-<topic>/<MMM>-<phase>-<slug>.md` **in the current project** — the repo at/above the CWD Claude Code was invoked from — never inside this plugin's own installation directory.
+
+- `NNN` orders topics: the first topic worked on gets the lowest `NNN`, each subsequent new topic gets a higher one.
+- `MMM` orders artifacts *within* a topic, one per phase: the first artifact written in a topic gets the lowest `MMM` there, and each subsequent *new* phase's artifact for that topic gets a higher `MMM`. Once a file is created, its **ordinal and filename never change again** — only its content can be updated. Re-running a phase that already has a file (e.g. a second `look` on the same topic) updates that existing file in place; it does not create a new one.
+- `<phase>` is the literal phase name (`look`, `ask`, `plan`, `prove`, `doit`, `bug`, `docs`).
+- `<slug>` is a short kebab-case name reflecting the file's actual content (e.g. `stale-cache-lookup`), chosen once when the file is first created and never changed afterward, even if the content evolves.
+
+This means the filename listing for a topic is a fixed, permanent record of which phases ran and in what order they were first started — at a glance, no metadata lookup required. The highest `MMM` in the topic with the highest `NNN` shows the furthest phase reached; that file's *content* (updated in place across reruns) shows where things currently stand:
 
 ```
 docs/ai-musings/
-└── 010-albot/                            # NNN = topic ordinal
-    ├── 010-path-resolution-gap.md        # PPP = phase ordinal, slug = content
-    ├── 020-fix-path-resolution.md
-    └── 030-fix-path-resolution.md
+└── 010-albot/                                 # NNN = topic ordinal
+    ├── 010-look-path-resolution-gap.md        # first phase started here
+    ├── 020-plan-fix-path-resolution.md        # then plan
+    └── 030-prove-fix-path-resolution.md       # then prove (content updated in place on reruns)
 ```
 
-Phase-to-ordinal mapping:
-
-| PPP | Phase |
-|---|---|
-| 010 | look |
-| 015 | ask |
-| 020 | plan |
-| 030 | verify |
-| 040 | doit |
-| 050 | debug |
-| 060 | document |
-
-Within a phase's ordinal, match the file by prefix (`030-*.md`) rather than assuming a fixed name — `verify` reuses `plan`'s slug, `document` picks its own.
+To find a given phase's doc, glob `*-<phase>-*.md` under the topic directory — there is exactly one per phase per topic. If a phase hasn't run yet for this topic, no such file exists.
 
 Frontmatter:
 
 ```yaml
 ---
 topic: <topic>
-phase: look|ask|plan|debug|document
+phase: look|ask|plan|prove|doit|bug|docs
 date: YYYY-MM-DD
 abstract: one-line summary
 ---
@@ -60,7 +55,7 @@ Body content is point-in-time only. No history of discarded approaches or "what 
 ## Standing rules (apply to every command and every agent)
 
 - No sycophantic or emotional language. No verbose responses.
-- Discussion before action: look → plan → verify, always in that order, before doit.
+- Discussion before action: look → plan → prove, always in that order, before doit.
 - If a required tool or resource is unavailable or broken: stop immediately, report it, do not continue or improvise a workaround.
 - Docs are point-in-time. No historical narrative.
 - Plans assume happy-path / fail-fast. No backwards-compatibility or fallback logic unless the task explicitly calls for it.

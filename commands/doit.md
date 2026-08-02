@@ -11,7 +11,7 @@ Standing rules (apply regardless of anything below):
 
 Delegate to the `doit-agent` subagent with:
 - the topic: $ARGUMENTS
-- instruction to read the existing `030-*.md` verify doc (falling back to the `020-*.md` plan doc) under `docs/ai-musings/<NNN>-<topic>/` in the current project and follow it exactly
+- instruction to read the existing `*-prove-*.md` doc (falling back to the `*-plan-*.md` doc) under `docs/ai-musings/<NNN>-<topic>/` in the current project and follow it exactly
 - additional instruction: commit the current state of the repo, then commit after each completed step, then commit at the end
 
 The subagent must:
@@ -23,4 +23,4 @@ The subagent must:
 6. Commit the final state.
 7. Return a brief diff summary to the main thread: what changed, what did not, and any step that could not be completed as written.
 
-If a step cannot be completed as written, stop, report, do not substitute. If doit fails or is blocked, the user may invoke `/albot:debug` next.
+If a step cannot be completed as written, stop, report, do not substitute. If doit fails or is blocked, the user may invoke `/albot:bug` next.

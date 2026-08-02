@@ -23,8 +23,8 @@ The subagent must research in this priority order, using whichever sources are a
 The subagent must:
 1. Research using the priority order above.
 2. Determine `NNN`: if `docs/ai-musings/<NNN>-<topic>/` already exists for this topic, reuse its `NNN`. Otherwise find the highest existing `NNN` across `docs/ai-musings/*/` in the current project and increment (use `010` if none exist).
-3. Pick a short kebab-case `<slug>` that reflects the actual content/finding of this doc (e.g. `oauth-pkce-best-practice`), not the generic word "ask".
-4. Write `docs/ai-musings/<NNN>-<topic>/015-<slug>.md` (in the current project, not the plugin directory) using the standard frontmatter:
+3. Check whether a `*-ask-*.md` file already exists in that topic directory. If it does, update it in place — keep its exact filename (ordinal and slug unchanged). If it does not, this is a new artifact: determine `MMM` by listing files already there, taking the highest numeric prefix, and adding 10 (`010` if the directory is empty/new), and pick a short kebab-case `<slug>` that reflects the actual content/finding of this doc (e.g. `oauth-pkce-best-practice`), not the generic word "ask".
+4. Write (or update) `docs/ai-musings/<NNN>-<topic>/<MMM>-ask-<slug>.md` (in the current project, not the plugin directory) using the standard frontmatter:
    ```yaml
    ---
    topic: <topic>
@@ -33,7 +33,7 @@ The subagent must:
    abstract: <one line>
    ---
    ```
-5. Body: point-in-time findings only — what the sources currently say, with source attribution (URL, doc title, or package/version). No narrative of the research process.
+5. Body: point-in-time findings only — what the sources currently say, with source attribution (URL, doc title, or package/version). No narrative of the research process. When updating an existing file, replace the body — do not append a change history.
 6. Return one brief summary message to the main thread (no restating the full doc, and including the exact filename written and which sources were actually used).
 
 Do not proceed to planning. Ask only.

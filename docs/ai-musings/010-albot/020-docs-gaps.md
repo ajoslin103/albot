@@ -1,6 +1,6 @@
 ---
 topic: albot
-phase: document
+phase: docs
 date: 2026-08-01
 abstract: Gaps to close before albot is installable/usable, compared against albot-prev. Updated after .claude-plugin/ and .gitignore fixes.
 
