@@ -4,7 +4,13 @@ Claude Code plugin implementing a fixed workflow: `look → plan → prove → d
 
 ## Install
 
-Copy or symlink this directory into `~/.claude/plugins/albot`.
+Symlink this directory into `~/.claude/skills/albot`:
+
+```sh
+ln -s "$(pwd)" ~/.claude/skills/albot
+```
+
+Claude Code auto-loads any `~/.claude/skills/<name>/` folder containing a `.claude-plugin/plugin.json` as a plugin (`albot@skills-dir`) at the next session start — no marketplace, no `claude plugin install`. Editing files here (in place, since it's a symlink) is picked up on the next session; run `/reload-plugins` to pick up agent/command changes mid-session without restarting.
 
 ## Commands
 
