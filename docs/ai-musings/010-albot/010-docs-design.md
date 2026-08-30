@@ -2,12 +2,12 @@
 topic: albot
 phase: docs
 date: 2026-08-01
-abstract: Design of the Albot Claude Code plugin (look/plan/prove/doit/bug/docs workflow)
+abstract: Design of the Albot Claude Code plugin (look/ask/plan/prove/doit/bug/docs workflow, plus help)
 ---
 
 ## Purpose
 
-User-level Claude Code plugin. Fixed workflow: `look → plan → prove → doit → bug → docs`. Built to conserve context window while working with a higher-class model, by isolating context-heavy phases (look, doit, bug) into stateless subagents, and keeping judgment-heavy phases (plan, prove, docs) inline in the main thread.
+User-level Claude Code plugin. Fixed workflow: `look → ask → plan → prove → doit → bug → docs`. Built to conserve context window while working with a higher-class model, by isolating context-heavy phases (look, doit, bug) into stateless subagents, and keeping judgment-heavy phases (plan, prove, docs) inline in the main thread.
 
 ## Subagent statelessness
 
@@ -24,6 +24,7 @@ Subagent invocations do not persist context between calls. Each call is independ
 | doit | subagent | Mechanical: follow the verified plan exactly, no deviation, auto-commits to git |
 | bug | subagent | Standalone-capable; traces logs/errors on demand or after failed doit |
 | docs | main thread | Consolidates artifacts into point-in-time docs |
+| help | main thread | Static output: phase order, command/agent map, artifact convention. No file reads, no delegation |
 
 Albot is reactive, not autonomous — it does not track workflow state on its own. The user drives which command runs next.
 
@@ -50,3 +51,9 @@ Baked redundantly into every command and every agent definition (not solely rely
 - Look → plan → prove strictly before doit.
 - Any unavailable/broken tool or resource the user said was available: stop immediately, report, no workaround.
 - Plans default to happy-path/fail-fast — no backwards-compatibility or fallback logic unless explicitly requested per-plan.
+
+## Agent tool access
+
+No agent definition pins a `tools:` frontmatter list. Tool names must match the host harness exactly and MCP tools are namespaced per installed server (`mcp__serena__*`), so a pinned list drops capability silently on a differently-named harness, refuses to spawn when nothing resolves, and cannot reach the optional `serena`/`context7` servers the agents are meant to prefer when present. Omitting the key inherits the host's actual tool set.
+
+Consequence: per-agent scope is enforced by prose only (`look-agent` must not browse, `ask-agent` must not read project files, `doit-agent` must not touch the plugin's own directory). This matches the plugin's existing approach of restating rules redundantly in every file rather than relying on external enforcement.

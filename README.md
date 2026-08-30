@@ -1,6 +1,17 @@
 # Albot
 
-Claude Code plugin implementing a fixed workflow: `look → plan → prove → doit → bug → docs`.
+Claude Code plugin implementing a fixed workflow: `look → ask → plan → prove → doit → bug → docs`.
+
+Run `/albot:help` for the full command/agent map and artifact convention.
+
+It's a **plugin** — a package that contributes two kinds of things:
+
+- **7 commands** (`commands/*.md`) — the user-facing entry points, invoked as `/albot:look`, `/albot:plan`, etc. These are the workflow.
+- **4 agents** (`agents/*.md`) — subagent definitions the commands delegate to (`look-agent`, `ask-agent`, `doit-agent`, `bug-agent`). Not directly invoked by the user.
+
+No skills in it (`skills/` doesn't exist). The "skill" confusion comes from the install path: the README says to symlink into `~/.claude/skills/albot`, and the harness surfaces plugin commands in the same slash-command namespace as skills.
+
+So: not one agent, not a skill — a command suite plus its supporting agents.
 
 ## Install
 
@@ -23,6 +34,17 @@ Claude Code auto-loads any `~/.claude/skills/<name>/` folder containing a `.clau
 | `/albot:doit <topic>` | Doit | subagent |
 | `/albot:bug <topic\|error>` | Bug | subagent |
 | `/albot:docs <topic>` | Docs | main thread |
+| `/albot:help` | — | main thread |
+
+`/albot` on its own is not a command — only the namespaced forms above.
+
+## Agents
+
+`look`, `ask`, `doit`, and `bug` delegate to subagents defined in `agents/`: `look-agent`, `ask-agent`, `doit-agent`, `bug-agent`.
+
+None of them pin a `tools:` list in frontmatter, deliberately. Tool names must match the host harness exactly (`Read`, `Write`, `Bash`, `WebSearch`, …) and MCP tools are namespaced per installed server (`mcp__serena__*`), so a pinned list either silently drops capability on a harness that names things differently or refuses to spawn at all when nothing resolves. It also can't reach optional MCP servers like `serena` and `context7`, which the agents are supposed to use when present. Omitting `tools:` inherits whatever the host actually has.
+
+Scope is therefore enforced in each agent's prose, not by the tool list — `look-agent` is told not to browse, `ask-agent` is told not to read project files, `doit-agent` is told not to touch the plugin's own directory. If you add a `tools:` line, verify the names against the running harness first.
 
 ## Artifact convention
 
@@ -68,4 +90,4 @@ Body content is point-in-time only. No history of discarded approaches or "what 
 
 ## Design notes
 
-See `docs/ai-musings/albot-design.md` for the full design rationale.
+See `docs/ai-musings/010-albot/` for design rationale, gaps, and current status.

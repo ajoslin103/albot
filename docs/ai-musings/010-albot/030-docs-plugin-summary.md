@@ -2,7 +2,7 @@
 topic: albot
 phase: docs
 date: 2026-08-01
-abstract: Plugin summary — 7 commands, 4 agents, look/ask/plan/prove/doit/bug/docs workflow, per-topic MMM artifact convention
+abstract: Plugin summary — 8 commands, 4 agents, look/ask/plan/prove/doit/bug/docs workflow plus help, per-topic MMM artifact convention
 ---
 
 ## Albot — Claude Code Plugin
@@ -25,6 +25,7 @@ Example: `docs/ai-musings/010-albot/030-docs-plugin-summary.md` — the third ar
 - `doit` (subagent) — executes the proven plan exactly as written, commits to git before/during/after each step. No deviation.
 - `bug` (subagent) — standalone-capable; traces an error/log/symptom to root cause, on demand or after a failed `doit`.
 - `docs` (main thread) — consolidates a topic's artifacts into a point-in-time summary; may also update broader project docs (README.md, CHANGELOG.md).
+- `help` (main thread) — static reference output: phase order, command/agent map, artifact convention, standing rules. Reads no files, delegates to nothing. Exists because `/albot` alone is not a command and clients that require exact command names give no way to browse the namespace.
 
 `plan`, `prove`, `docs` run inline in the main thread (judgment-heavy, need full reasoning context); `look`, `ask`, `doit`, `bug` delegate to stateless subagents (context-heavy, isolated from the main thread).
 
@@ -41,8 +42,9 @@ albot/
 │   ├── prove.md             # /albot:prove <topic>
 │   ├── doit.md              # /albot:doit <topic> (execute + auto-commit)
 │   ├── bug.md               # /albot:bug <topic|error>
-│   └── docs.md              # /albot:docs <topic>
-├── agents/
+│   ├── docs.md              # /albot:docs <topic>
+│   └── help.md              # /albot:help
+├── agents/                  # none pin a tools: list — see "Agent tool access"
 │   ├── look-agent.md        # subagent: disk-focused file/log reading (serena MCP)
 │   ├── ask-agent.md         # subagent: external research (internet, docs, context7 MCP, code)
 │   ├── doit-agent.md        # subagent: mechanical plan execution + git commits
@@ -52,9 +54,17 @@ albot/
 │       └── 010-albot/                            # NNN = topic ordinal
 │           ├── 010-docs-design.md                # MMM: order phases first ran
 │           ├── 020-docs-gaps.md
-│           └── 030-docs-plugin-summary.md        # this file — updated in place on rerun
+│           ├── 030-docs-plugin-summary.md        # this file — updated in place on rerun
+│           └── 040-docs-status.md
+├── .gitignore
 └── README.md
 ```
+
+## Agent tool access
+
+No agent definition pins a `tools:` frontmatter list. Tool names must match the host harness exactly (`Read`, `Write`, `Bash`, `WebSearch`, …) and MCP tools are namespaced per installed server (`mcp__serena__*`). A pinned list silently drops capability on a harness that names things differently, refuses to spawn at all when nothing in the list resolves, and cannot reach the optional `serena`/`context7` servers the agents are supposed to prefer when present. Omitting the key inherits the host's real tool set.
+
+Per-agent scope is therefore prose-enforced, not tool-enforced.
 
 ## Commands
 
@@ -67,6 +77,7 @@ albot/
 | `/albot:doit <topic>` | Doit | subagent | Follows verified plan exactly, no deviation; auto-commits to git |
 | `/albot:bug <topic\|error>` | Bug | subagent | Traces logs/errors on demand or after failed doit |
 | `/albot:docs <topic>` | Docs | main | Consolidates artifacts into point-in-time doc |
+| `/albot:help` | — | main | Static reference: phases, commands, agents, artifact convention |
 
 ## Standing Rules
 

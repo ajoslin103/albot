@@ -1,37 +1,27 @@
 ---
 topic: albot
 phase: docs
-date: 2026-08-01
-abstract: Gaps to close before albot is installable/usable, compared against albot-prev. Updated after .claude-plugin/ and .gitignore fixes.
-
+date: 2026-08-30
+abstract: Open gaps in albot — packaging, testing, and the multiple-docs-file case /albot:docs cannot handle
 ---
 
-## Resolved
-- `.claude-plugin/plugin.json` — moved to correct location per spec.
-- `.gitignore` — created.
----
+## Packaging
 
-## Packaging gaps
+- No `marketplace.json`. Not needed for the symlink-into-`~/.claude/skills/` install path documented in the README, but required for `claude plugin add`.
+- No `LICENSE` file.
 
-- No `marketplace.json` — needed if `albot` should be installable via `claude plugin add` (albot-prev had one).
-- No `LICENSE` file (albot-prev used MIT).
+## Testing
 
-## Functional gaps vs. albot-prev
+The agent-spawning phases (`look`, `ask`, `doit`, `bug`) have never completed a run. Each should be dry-run once end-to-end on a throwaway topic to confirm the subagent actually spawns, reaches the tools it needs, and writes correctly-named frontmatter.
 
-- No `/me`-equivalent command. `albot-prev`'s `/me` loads standing rules as a standalone command. `albot` duplicates the rules inline in every command file instead of offering a single rule-reinforcement command.
+`plan`, `prove`, `docs`, and `help` run inline and need no spawn to work.
 
-## Resolved (continued)
+## `/albot:docs` cannot handle multiple docs files
 
-- `execute.md` merged into `doit.md`: `albot` now has a single execute-with-auto-commit command (`/albot:doit`), matching `albot-prev`'s `/doit` behavior. `execute-agent.md` renamed to `doit-agent.md`.
-- Model pinning removed from `/albot:doit` since it now does full execute-agent work (not a lightweight shortcut); no per-command model pinning elsewhere either.
+`commands/docs.md` step 2 says: if a `*-docs-*.md` exists, update *that* file in place. It assumes exactly one docs artifact per topic, consistent with the one-file-per-phase convention. `010-albot/` contains four (`010-docs-design`, `020-docs-gaps`, `030-docs-plugin-summary`, `040-docs-status`), so the command has no defined target and their content overlaps heavily.
 
-## Untested
+Two ways out: consolidate to a single docs artifact per topic, or amend the convention and the command to allow multiple docs files distinguished by slug, with a rule for picking which one a rerun updates.
 
-None of the 6 commands or 3 agents in `albot` have been run yet. Each phase should be dry-run once end-to-end on a throwaway topic to confirm subagent delegation and frontmatter-writing behave as specified before relying on it.
+## Agent scope is unenforced
 
-## Naming (resolved)
-
-Confirmed per official Claude Code plugin docs (`code.claude.com/docs/en/plugins`):
-- Namespace comes from `plugin.json`'s `name` field, not the folder name or command filenames.
-- Format is colon-delimited: `/albot:look`, `/albot:plan`, etc. — already correct in all command files.
-- Command files stay as plain filenames (`look.md`), no namespace prefix needed.
+Agent definitions intentionally omit `tools:`, so subagents inherit the full host tool set and scope rules hold only as prose. `look-agent` can technically browse; `ask-agent` can technically read project files. Acceptable given the plugin's redundant-prose approach, but it is not a hard boundary.
