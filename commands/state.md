@@ -61,12 +61,35 @@ Arguments may carry a **store location**, a **topic**, or both, in any order. Re
 
 ## Mode selection
 
-Parse `$ARGUMENTS`:
+Parse `$ARGUMENTS` by stripping, not by matching the whole string. Remove the parts that carry mode, count, and location; whatever is left is the topic.
 
-- First word `write` or `save` → **write mode**; the remainder, if any, is the topic.
-- Empty → **read mode**, unscoped.
-- A bare integer `<n>` → **read mode**, unscoped, reading the last `<n>` fragments instead of 3.
-- Anything else → **read mode**, scoped to that topic.
+**Intent words** — these set the mode and are never a topic:
+
+| Intent | Words |
+|---|---|
+| write | `write`, `save`, `record` |
+| read | `read`, `catch up`, `catchup`, `status`, `recap` |
+
+**Filler** — discard wherever it appears: `on`, `about`, `for`, `the`, `me`, `it`, `into`, `in`, `to`, `up`, `please`.
+
+Then:
+
+1. A write intent word anywhere → **write mode**. Otherwise **read mode** — read is the default and needs no intent word.
+2. A bare integer `<n>` → read the last `<n>` fragments instead of 3.
+3. Strip intent words, the integer, and the location (see **Targeting**). What remains is the topic. **If nothing remains, the read is unscoped** — that is the normal case, not an error.
+4. Only the remainder is matched against topic folders. An intent word must never be resolved as a topic, and must never trigger the stop-and-report in Targeting §3.
+
+Worked examples:
+
+| Arguments | Mode | Topic |
+|---|---|---|
+| *(empty)* | read | unscoped |
+| `catch up` | read | unscoped |
+| `catch me up on albot` | read | `albot` |
+| `read 6` | read, last 6 | unscoped |
+| `albot` | read | `albot` |
+| `write` | write | inferred, must match an existing folder |
+| `write it into the albot ai-musings` | write | `albot`, store `albot/docs/ai-musings` |
 
 ## Read mode (default)
 
