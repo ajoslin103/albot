@@ -1,5 +1,5 @@
 {
   "name": "albot",
-  "version": "0.1.0",
-  "description": "Look / ask / plan / prove / doit / bug / docs workflow for Claude Code"
+  "version": "0.2.0",
+  "description": "Look / ask / plan / prove / doit / bug / docs workflow for Claude Code, plus an out-of-band living state store"
 }

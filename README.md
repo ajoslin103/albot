@@ -6,7 +6,7 @@ Run `/albot:help` for the full command/agent map and artifact convention.
 
 It's a **plugin** — a package that contributes two kinds of things:
 
-- **7 commands** (`commands/*.md`) — the user-facing entry points, invoked as `/albot:look`, `/albot:plan`, etc. These are the workflow.
+- **8 commands** (`commands/*.md`) — the user-facing entry points, invoked as `/albot:look`, `/albot:plan`, etc. These are the workflow.
 - **4 agents** (`agents/*.md`) — subagent definitions the commands delegate to (`look-agent`, `ask-agent`, `doit-agent`, `bug-agent`). Not directly invoked by the user.
 
 No skills in it (`skills/` doesn't exist). The "skill" confusion comes from the install path: the README says to symlink into `~/.claude/skills/albot`, and the harness surfaces plugin commands in the same slash-command namespace as skills.
@@ -34,6 +34,7 @@ Claude Code auto-loads any `~/.claude/skills/<name>/` folder containing a `.clau
 | `/albot:doit <topic>` | Doit | subagent |
 | `/albot:bug <topic\|error>` | Bug | subagent |
 | `/albot:docs <topic>` | Docs | main thread |
+| `/albot:state [write] [<topic>]` | — (out-of-band) | main thread |
 | `/albot:help` | — | main thread |
 
 `/albot` on its own is not a command — only the namespaced forms above.
@@ -52,7 +53,7 @@ This is a global (user-level) plugin. All phases write into `docs/ai-musings/<NN
 
 - `NNN` orders topics: the first topic worked on gets the lowest `NNN`, each subsequent new topic gets a higher one.
 - `MMM` orders artifacts *within* a topic, one per phase: the first artifact written in a topic gets the lowest `MMM` there, and each subsequent *new* phase's artifact for that topic gets a higher `MMM`. Once a file is created, its **ordinal and filename never change again** — only its content can be updated. Re-running a phase that already has a file (e.g. a second `look` on the same topic) updates that existing file in place; it does not create a new one.
-- `<phase>` is the literal phase name (`look`, `ask`, `plan`, `prove`, `doit`, `bug`, `docs`).
+- `<phase>` is the literal phase name (`look`, `ask`, `plan`, `prove`, `doit`, `bug`, `docs`). `state` is not in this sequence — see below.
 - `<slug>` is a short kebab-case name reflecting the file's actual content (e.g. `stale-cache-lookup`), chosen once when the file is first created and never changed afterward, even if the content evolves.
 
 This means the filename listing for a topic is a fixed, permanent record of which phases ran and in what order they were first started — at a glance, no metadata lookup required. The highest `MMM` in the topic with the highest `NNN` shows the furthest phase reached; that file's *content* (updated in place across reruns) shows where things currently stand:
@@ -72,13 +73,32 @@ Frontmatter:
 ```yaml
 ---
 topic: <topic>
-phase: look|ask|plan|prove|doit|bug|docs
+phase: look|ask|plan|prove|doit|bug|docs|state
 date: YYYY-MM-DD
 abstract: one-line summary
 ---
 ```
 
 Body content is point-in-time only. No history of discarded approaches or "what we used to do."
+
+### State is the exception
+
+`state` uses the same filename pattern as every other phase, but breaks two of the rules above, because state is not a document — it is a **living store** of the ongoing state-of-play, with no final form and no single file that is "the" state.
+
+```
+docs/ai-musings/010-albot/
+├── 010-look-path-resolution-gap.md   # phases: exactly one file each, rewritten in place
+├── 020-plan-fix-path-resolution.md
+├── 030-state-command-surface.md      # state: many files, append-only, never rewritten
+└── 040-state-fragment-model.md
+```
+
+- **More than one file per topic.** Every other phase has exactly one; state takes the next `<MMM>` on each write.
+- **Append-only.** Fragments are never edited, renumbered, or deleted.
+- **It never creates a directory.** No topic folder matching the work means stop and report — state does not invent an `NNN`. Establishing a topic is a phase command's job (`look`, `ask`, `bug`).
+- It is always larger than the context available to read or write it. So a write emits a **fragment** (the delta since the last one, not a re-description) and a read returns a **fraction** (default: last 3, newest-wins on conflict).
+- A read must report what it *didn't* read — fragment count and timespan. Mistaking a fraction for the whole is this command's main failure mode.
+- Superseding is explicit (`supersedes:` in frontmatter) and additive: the invalidated fragment stays on disk.
 
 ## Standing rules (apply to every command and every agent)
 
